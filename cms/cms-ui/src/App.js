@@ -1,4 +1,5 @@
 import './App.css';
+import React from 'react'
 
 import {
   createBrowserRouter,
@@ -21,9 +22,24 @@ const router = createBrowserRouter([
 ]);
 
 function RestaurantEditor() {
+  const [name, setName] = React.useState("")
+  const updateRestaurantName = (name) => {
+    fetch('http://localhost:1337/api/restaurants/1', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({data: {
+        description: name,
+      }}),
+    })
+  }
+  
   return (
     <div>
       <header>wellcome from restaurant editor!</header>
+      <input onChange={(e) => setName(e.target.value)} placeholder='new name...'></input>
+      <button onClick={() => updateRestaurantName(name)}>update name</button>
     </div>
   )
 }
