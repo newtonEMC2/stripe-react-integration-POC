@@ -1,0 +1,16 @@
+Dockerfile*
+docker-compose
+todoes.txt
+.dockerignore
+.gitignore
+.git
+.env
+.eslint*
+npm-debug.log
+README.md
+.vscode
+build
+node_modules
+deploy
+docs
+coverage

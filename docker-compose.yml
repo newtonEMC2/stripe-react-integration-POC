@@ -1,0 +1,77 @@
+# path: ./docker-compose.yml
+
+version: '3'
+services:
+  front-dev:
+    container_name: front
+    build: 
+      context: ./front
+      dockerfile: Dockerfile
+    depends_on:
+      - "strapi"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./front/:/app
+      - /app/node_modules
+    environment:
+      WATCHPACK_POLLING: 1
+      DISABLE_ESLINT_PLUGIN: 1
+      NODE_ENV: "development"
+
+  strapi:
+    container_name: strapi
+    build: 
+      context: ./cms
+      dockerfile: Dockerfile
+    image: strapi:latest
+    restart: unless-stopped
+    env_file: ./cms/.env
+    environment:
+      DATABASE_CLIENT: ${DATABASE_CLIENT}
+      DATABASE_HOST: strapiDB
+      DATABASE_PORT: 3306
+      DATABASE_NAME: mydb
+      DATABASE_USERNAME: root
+      DATABASE_PASSWORD: root
+      NODE_ENV: ${NODE_ENV}
+    volumes:
+      - ./cms/config:/opt/app/config
+      - ./cms/src:/opt/app/src
+      - ./cms/package.json:/opt/package.json
+      - ./cms/yarn.lock:/opt/yarn.lock
+      - ./cms/.env:/opt/app/.env
+      - ./cms/public/uploads:/opt/app/public/uploads
+    ports:
+      - '1337:1337'
+    networks:
+      - strapi
+    depends_on:
+      - strapiDB
+
+  strapiDB:
+    container_name: strapiDB
+    platform: linux/amd64 #for platform error on Apple M1 chips
+    restart: unless-stopped
+    env_file: ./cms/.env
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: mydb
+    volumes:
+      - strapi-data:/var/lib/mysql
+      #- ./data:/var/lib/mysql # if you want to use a bind folder
+    ports:
+      - '3306:3306'
+    networks:
+      - strapi
+
+volumes:
+  strapi-data:
+
+networks:
+  strapi:
+    name: Strapi
+    driver: bridge
