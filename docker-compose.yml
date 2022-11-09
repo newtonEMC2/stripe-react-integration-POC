@@ -9,6 +9,7 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - "strapi"
+      - "strapiDB"
     ports:
       - "3000:3000"
     volumes:
